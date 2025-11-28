@@ -5,11 +5,15 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
+
+	"pokedexcli/cache"
 )
 
 var (
 	nextURL     = "https://pokeapi.co/api/v2/location-area?offset=0&limit=20"
 	previousURL = ""
+	fetchCache  = cache.NewCache(1 * time.Minute)
 )
 
 type Result struct {
@@ -25,6 +29,20 @@ type ResourceList struct {
 }
 
 func fetchResourceList(url string) (*ResourceList, error) {
+	// Check cache first
+	if cachedData, ok := fetchCache.Get(url); ok {
+		var resourceList ResourceList
+		if err := json.Unmarshal(cachedData, &resourceList); err != nil {
+			return nil, err
+		}
+
+		previousURL = resourceList.Previous
+		nextURL = resourceList.Next
+
+		return &resourceList, nil
+	}
+
+	// Data not in cache, fetch from API
 	res, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -40,6 +58,10 @@ func fetchResourceList(url string) (*ResourceList, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Add to cache
+	fetchCache.Add(url, body)
+
 	// Decode the response body
 	var resourceList ResourceList
 	if err := json.Unmarshal(body, &resourceList); err != nil {
