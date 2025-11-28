@@ -22,6 +22,16 @@ func init() {
 			description: "Exit the Pokedex",
 			callback:    commandExit,
 		},
+		"map": {
+			name:        "map",
+			description: "Displays next 20 location areas",
+			callback:    commandMap,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Displays the previous 20 location areas",
+			callback:    commandMapBack,
+		},
 	}
 }
 
