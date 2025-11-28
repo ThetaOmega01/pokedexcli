@@ -32,6 +32,11 @@ func init() {
 			description: "Displays the previous 20 location areas",
 			callback:    commandMapBack,
 		},
+		"explore": {
+			name:        "explore",
+			description: "Explore a location area",
+			callback:    commandExplore,
+		},
 	}
 }
 
